@@ -1,5 +1,5 @@
 # DataMappingUtility
-C# utility for converting between tabular data and anonymous typed objects
+C# utility for conversion between tabular data and anonymous typed objects
 
 Target .NET Framework 3.5
 
