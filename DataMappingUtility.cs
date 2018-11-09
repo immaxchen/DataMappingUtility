@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Data.OleDb;
 using System.IO;
 using System.Linq;
 
@@ -35,7 +36,12 @@ namespace DataMappingUtility
                     dataTable.Add(new List<string>());
                     var record = dataTable.Last();
                     for (int j = sheet.Dimension.Start.Column; j <= sheet.Dimension.End.Column; j++)
-                        record.Add(sheet.Cells[i, j].Value.ToString());
+                    {
+                        if (sheet.Cells[i, j].Value == null)
+                            record.Add(String.Empty);
+                        else
+                            record.Add(sheet.Cells[i, j].Value.ToString());
+                    }
                 }
             }
             return dataTable;
@@ -55,6 +61,36 @@ namespace DataMappingUtility
                 excel.Save();
             }
         }
+
+        public static List<List<string>> ReadDataTable(DataTable table)
+        {
+            return new List<List<string>>() {
+                table.Columns.Cast<DataColumn>().Select(x => x.ColumnName).ToList()
+            }.Concat(
+                table.AsEnumerable().Select(x => x.ItemArray.Select(o => o.ToString()).ToList()).ToList()
+            ).ToList();
+        }
+
+        public static DataTable ToDataTable(this List<List<string>> dataTable)
+        {
+            var table = new DataTable();
+            if (dataTable.Count == 0) return table;
+            foreach (string column in dataTable[0])
+                table.Columns.Add(column);
+            if (dataTable.Count == 1) return table;
+            foreach (var record in dataTable.Skip(1))
+                table.LoadDataRow((object[])record.ToArray(), true);
+            return table;
+        }
+
+        public static List<List<string>> ReadMdb(string filepath, string tablename)
+        {
+            var table = new DataTable();
+            using (var connection = new OleDbConnection("Provider=Microsoft.ACE.OLEDB.12.0;Data Source=" + filepath))
+            using (var adapter = new OleDbDataAdapter("SELECT * FROM " + tablename, connection))
+                adapter.Fill(table);
+            return ReadDataTable(table);
+        }
     }
 
     public static class DataOOP
@@ -62,7 +98,7 @@ namespace DataMappingUtility
         public static IEnumerable<T> Generate<T>(this List<List<string>> dataTable, T dataModel)
         {
             if (dataTable.Count == 0) return null;
-            var ctor = dataModel.GetType().GetConstructors().Single();
+            var ctor = dataModel.GetType().GetConstructors()[0];
             var pars = ctor.GetParameters();
             List<T> dataObjects = new List<T>();
             List<string> header = dataTable[0];
@@ -95,7 +131,7 @@ namespace DataMappingUtility
         public static List<List<string>> Tabulate<T>(this IEnumerable<T> dataObjects)
         {
             if (dataObjects.Count() == 0) return null;
-            var ctor = dataObjects.ElementAt(0).GetType().GetConstructors().Single();
+            var ctor = dataObjects.ElementAt(0).GetType().GetConstructors()[0];
             var pars = ctor.GetParameters();
             List<List<string>> dataTable = new List<List<string>>();
             List<string> header = new List<string>();
