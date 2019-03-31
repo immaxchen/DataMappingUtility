@@ -95,10 +95,10 @@ namespace DataMappingUtility
 
     public static class DataOOP
     {
-        public static IEnumerable<T> Generate<T>(this List<List<string>> dataTable, T dataModel)
+        public static IEnumerable<T> Generate<T>(this List<List<string>> dataTable, T dataModel, int ctorIndex = 0)
         {
             if (dataTable.Count == 0) return null;
-            var ctor = dataModel.GetType().GetConstructors()[0];
+            var ctor = dataModel.GetType().GetConstructors()[ctorIndex];
             var pars = ctor.GetParameters();
             List<T> dataObjects = new List<T>();
             List<string> header = dataTable[0];
@@ -128,10 +128,10 @@ namespace DataMappingUtility
             return dataObjects.AsEnumerable();
         }
 
-        public static List<List<string>> Tabulate<T>(this IEnumerable<T> dataObjects)
+        public static List<List<string>> Tabulate<T>(this IEnumerable<T> dataObjects, int ctorIndex = 0)
         {
             if (dataObjects.Count() == 0) return null;
-            var ctor = dataObjects.ElementAt(0).GetType().GetConstructors()[0];
+            var ctor = dataObjects.ElementAt(0).GetType().GetConstructors()[ctorIndex];
             var pars = ctor.GetParameters();
             List<List<string>> dataTable = new List<List<string>>();
             List<string> header = new List<string>();
