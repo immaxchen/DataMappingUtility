@@ -1,4 +1,4 @@
-﻿using OfficeOpenXml;
+using OfficeOpenXml;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -153,8 +153,16 @@ namespace DataMappingUtility
 
         public static List<List<string>> Rename(this List<List<string>> dataTable, params string[] names)
         {
-            if (dataTable[0].Count != names.Count()) throw new Exception("Number of columns dismatch.");
+            if (dataTable[0].Count != names.Count()) throw new Exception("Number of column names mismatch.");
             dataTable[0] = names.ToList();
+            return dataTable;
+        }
+
+        public static List<List<string>> Rename(this List<List<string>> dataTable, Dictionary<string, string> mapper)
+        {
+            foreach (var entry in mapper)
+                if (dataTable[0].Contains(entry.Key)) dataTable[0][dataTable[0].IndexOf(entry.Key)] = entry.Value;
+                else throw new Exception("The given column name was not present in the table.");
             return dataTable;
         }
     }

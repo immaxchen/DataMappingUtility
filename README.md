@@ -29,3 +29,14 @@ or using a compatible class definition
 ```c#
 var users = table.Generate(new User());
 ```
+
+a simple helper class is provided to validate the data
+
+```c#
+var validator = new TableValidator(table);
+validator.Field("UserId").IsRequired();
+validator.Field("UserId").IsUnique();
+validator.Field("Name").IsRequired();
+validator.Field("Gender").IsIn("Male", "Female");
+var log = validator.Validate();
+```
