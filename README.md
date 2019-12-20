@@ -38,5 +38,6 @@ validator.Field("UserId").IsRequired();
 validator.Field("UserId").IsUnique();
 validator.Field("Name").IsRequired();
 validator.Field("Gender").IsIn("Male", "Female");
+validator.Field("Birthday").IsDateTime();
 var log = validator.Validate();
 ```

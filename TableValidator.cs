@@ -112,6 +112,12 @@ namespace DataMappingUtility
                 return double.TryParse(s, out result) ? result : (double?)null;
             }
 
+            public static DateTime? ParseDateTime(string s)
+            {
+                DateTime result;
+                return DateTime.TryParse(s, out result) ? result : (DateTime?)null;
+            }
+
             public void IsRequired()
             {
                 AddConstraint(s =>
@@ -148,6 +154,15 @@ namespace DataMappingUtility
                 });
             }
 
+            public void IsDateTime()
+            {
+                AddConstraint(s =>
+                {
+                    if (IsNullOrSpace(s)) return null;
+                    return ParseDateTime(s) == null ? string.Format("{0} should be a valid datetime, got: {1}", Name, s) : null;
+                });
+            }
+
             public void IsGreaterThan(double value)
             {
                 AddConstraint(s =>
@@ -166,6 +181,24 @@ namespace DataMappingUtility
                 });
             }
 
+            public void IsBefore(DateTime value)
+            {
+                AddConstraint(s =>
+                {
+                    var result = ParseDateTime(s);
+                    return result == null || result < value ? null : string.Format("{0} should comes before {1:yyyy/MM/dd HH:mm:ss}, got: {2}", Name, value, s);
+                });
+            }
+
+            public void IsAfter(DateTime value)
+            {
+                AddConstraint(s =>
+                {
+                    var result = ParseDateTime(s);
+                    return result == null || result > value ? null : string.Format("{0} should comes after {1:yyyy/MM/dd HH:mm:ss}, got: {2}", Name, value, s);
+                });
+            }
+
             public void IsIn(params string[] values)
             {
                 AddConstraint(s =>
@@ -181,6 +214,16 @@ namespace DataMappingUtility
                     var v1 = ParseDouble(s1);
                     var v2 = ParseDouble(s2);
                     return v1 == null || v2 == null || v1 > v2 ? null : string.Format("{0} should be greater than {1}, got: {2}, {3}", Name, targetColName, s1, s2);
+                });
+            }
+
+            public void IsBefore(string targetColName)
+            {
+                AddComparator(targetColName, (s1, s2) =>
+                {
+                    var v1 = ParseDateTime(s1);
+                    var v2 = ParseDateTime(s2);
+                    return v1 == null || v2 == null || v1 < v2 ? null : string.Format("{0} should comes before {1}, got: {2}, {3}", Name, targetColName, s1, s2);
                 });
             }
         }
