@@ -1,7 +1,7 @@
 # DataMappingUtility
 C# utility for conversion between tabular data and anonymous typed / compatible class objects
 
-Target .NET Framework 3.5
+Target .NET Framework 3.5+
 
 Need to reference EPPlus for Excel I/O
 
